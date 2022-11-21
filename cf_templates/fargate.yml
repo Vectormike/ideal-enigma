@@ -1,0 +1,41 @@
+AWSTemplateFormatVersion: 2010-09-09
+Description: Cloudformation script for Fargate
+Parameters:
+  VPC: 
+    Type: AWS::EC2::VPC::Id
+  SubnetA:
+    Type: AWS::EC2::Subnet::Id
+  SubnetB:
+    Type: AWS::EC2::Subnet::Id
+  Certificate:
+    Type: String
+    # Update with the certificate ARN from Certificate Manager, which must exist in the same region.
+    Default: 'arn:aws:acm:region:123456789012:certificate/00000000-0000-0000-0000-000000000000'
+  Image:
+    Type: String
+    Default: Vectormike/cocus:1.0
+  ServiceName:
+    Type: String
+    Default: CocusService
+  ContainerPort:
+    Type: Number
+    Default: 3000
+Resources: 
+  Cluster:
+   Type: AWS::ECS::Cluster
+  Properties:
+      ClusterName: !Join ['', [!Ref CocusService, Cluster]]
+  TaskDefinition:
+    Type: AWS::ECS::TaskDefinition
+    NetworkMode: awsvpc
+    RequiresCompatibilities:
+      - FARGATE
+    Cpu: 256
+    Memory: 0.5GB
+    # "The Amazon Resource Name (ARN) of an AWS Identity and Access Management (IAM) role that grants containers in the task permission to call AWS APIs on your behalf."
+    ContainerDefinitions:
+      - Name: !Ref CocusService
+        Image: !Ref Image
+        PortMappings:
+          - ContainerPort: !Ref ContainerPort
+          
